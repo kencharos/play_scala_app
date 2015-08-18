@@ -1,0 +1,10 @@
+@import play.api.i18n.Messages
+@(f: Field, label:String)(body: (String, String) => Html)(implicit messages:Messages)
+<div class="@if(f.errors.isEmpty){form-group}else{form-group has-error}">
+    <label for="@f.name" class="control-label">@label
+        @if(!f.errors.isEmpty) {
+            <span>@Messages(f.errors(0).messages(0))</span>
+        }
+    </label>
+    @body(f.name, f.value.getOrElse(""))
+</div>

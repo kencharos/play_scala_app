@@ -1,0 +1,14 @@
+@import tags._
+@(notifications:Seq[String])(implicit  session: Session, lang: Lang,messages:Messages)
+
+@main("welcome") {
+
+<h1>Welcome! @session("auser")</h1>
+
+<h2>Notification</h2>
+<ul>@for(note <- notifications){
+    <li>@note</li>
+    }
+</ul>
+
+}

@@ -1,0 +1,19 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+#GET     /                           controllers.Application.index
+
+GET     /                           controllers.Default.redirect(to = "/login")
+GET     /login                      controllers.Application.login()
+GET     /logout                      controllers.Application.logout()
+POST    /login                      controllers.Application.doLogin()
+GET     /welcome                    controllers.Application.welcome()
+
+# ajax
+GET     /jsRoutes                   controllers.Application.jsRoutes()
+POST    /login/tryLogin             controllers.Application.tryLogin()
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -1,0 +1,34 @@
+@import tags._
+@(form: Form[controllers.LoginReq])(implicit  session: Session, lang: Lang, messages:Messages)
+
+@main("login") {
+
+<h1>Login</h1>
+<form  method="POST" class="form" action="@routes.Application.doLogin()">
+    @bs(form("id"), "id") {(name, value) =>
+        <input type="text" name="@name"  id="@name" class="form-control" placeholder="user1" value="@value" />
+    }
+    @bs(form("password"), "password") { (name, value) =>
+        <input type="password" name="@name"  id="@name" class="form-control" placeholder="user1" value="@value" />
+    }
+
+    <input type="button" id="ajax" class="btn btn-default" value="ログインチェック(ajax)"/>
+    <input type="submit" class="btn btn-primary" value="ログイン"/>
+</form>
+</div>
+<script>
+	$("#ajax").click(function(e){
+	        var route = jsRoutes.controllers.Application.tryLogin();
+			$.ajax({ url:route.url, method:route.method,
+	         data:JSON.stringify({id:$("#id").val(), password:$("#password").val()}),
+	            contentType: "application/json; charset=utf-8"}
+		).success(function(data){
+			alert(data);
+		}).error( function(data){
+			alert(data.responseText);
+		});
+	});
+
+</script>
+
+}
