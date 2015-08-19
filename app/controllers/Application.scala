@@ -10,10 +10,26 @@ import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import services.LoginService
 
+import scala.concurrent.Future
+
 case class LoginReq(id: String, password:String)
 
 // scala での DIはコンストラクタが推奨される。
 class Application @Inject()(loginService:LoginService) extends Controller {
+
+  // 認証処理
+  case class NeedAuthenticate[A](action: Action[A]) extends Action[A] {
+
+    def apply(request: Request[A]): Future[Result] = {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      request.session.get("auser") match {
+        case Some(_) => action(request)
+        case _ => Future(Redirect(routes.Application.login()))
+      }
+    }
+
+    lazy val parser = action.parser
+  }
 
   // form定義
   val loginForm: Form[LoginReq] = Form(
@@ -46,11 +62,14 @@ class Application @Inject()(loginService:LoginService) extends Controller {
   def logout = Action{ implicit request =>
     Redirect(routes.Application.login()).withNewSession
   }
+  // 認証が必要。Actionにネストさせるのが少しダサい。
+  // filterやActionBuilderによるAction合成の方がいいかも。
+  def welcome = NeedAuthenticate {
+    Action { implicit request =>
+      val notes = List("This is play scala..")
 
-  def welcome = Action { implicit request =>
-    val notes = List("This is play scala..")
-
-    Ok(views.html.welcome(notes))
+      Ok(views.html.welcome(notes))
+    }
   }
   // AJAX リクエスト
   def tryLogin = Action(BodyParsers.parse.json) { implicit request =>
