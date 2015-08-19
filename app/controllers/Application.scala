@@ -12,9 +12,10 @@ import services.LoginService
 
 case class LoginReq(id: String, password:String)
 
+// scala での DIはコンストラクタが推奨される。
 class Application @Inject()(loginService:LoginService) extends Controller {
 
-
+  // form定義
   val loginForm: Form[LoginReq] = Form(
     mapping(
       "id" -> nonEmptyText,
@@ -33,6 +34,7 @@ class Application @Inject()(loginService:LoginService) extends Controller {
       },
       data => {
         if (loginService.login(data.id, data.password)) {
+          // scala版ではセッションはresultに付与する形式
           Redirect(routes.Application.welcome()).withSession("auser" -> data.id)
         } else {
           BadRequest(views.html.login(loginForm.bindFromRequest.withError("id", "invalid id or password")))
@@ -50,7 +52,7 @@ class Application @Inject()(loginService:LoginService) extends Controller {
 
     Ok(views.html.welcome(notes))
   }
-
+  // AJAX リクエスト
   def tryLogin = Action(BodyParsers.parse.json) { implicit request =>
     loginForm.bind(request.body).fold(
       errorForm => {

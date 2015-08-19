@@ -5,9 +5,7 @@ import models.UserDao
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-/**
- * Created by kentaro.maeda on 2015/08/17.
- */
+
 @ImplementedBy(classOf[DBLoginService])
 trait LoginService {
   def login(id:String, rawPassword:String):Boolean
@@ -15,7 +13,10 @@ trait LoginService {
 
 class  DBLoginService @Inject() (encrypter: PasswordEncrypter, userDao: UserDao) extends LoginService {
   override def login(id: String, rawPassword: String): Boolean = {
-    val user = Await.result(userDao.find(id).map(seq =>{println("map;" + seq.size); seq.headOption}), 5 seconds)
+
+    // Slick はすべて非同期で処理されるため、結果を取得する必要があるのならAwaitで取得する。
+    // ここでwaitするのではなく、Action側で非同期にしてしまってもよい。
+    val user = Await.result(userDao.find(id).map(_.headOption), 5 seconds)
     user.exists(_.password == encrypter.encrypt(rawPassword))
 
   }
