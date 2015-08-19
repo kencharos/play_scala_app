@@ -25,11 +25,11 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
   // クエリ組み立て部品
   private val Users = TableQuery[UsersTable]
 
-  def find(id:String):Future[Seq[User]] = {
+  def find(id:String):Future[Option[User]] = {
     // tablequery はモナド的にクエリの組み立てが可能。
     val q = for(u <- Users; if u.id === id)yield(u)
     // resultでクエリをDB操作に変換し、db.rubで実行するが、基本的にFutureを返すことに注意。
-    db.run(q.result)
+    db.run(q.result.headOption)
   }
   // テーブル定義。必須。
   private class UsersTable(tag: Tag) extends Table[User](tag, "T_USER") {

@@ -6,7 +6,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-@ImplementedBy(classOf[DBLoginService])
+@ImplementedBy(value = classOf[DBLoginService])
 trait LoginService {
   def login(id:String, rawPassword:String):Boolean
 }
@@ -16,7 +16,7 @@ class  DBLoginService @Inject() (encrypter: PasswordEncrypter, userDao: UserDao)
 
     // Slick はすべて非同期で処理されるため、結果を取得する必要があるのならAwaitで取得する。
     // ここでwaitするのではなく、Action側で非同期にしてしまってもよい。
-    val user = Await.result(userDao.find(id).map(_.headOption), 5 seconds)
+    val user = Await.result(userDao.find(id), 5 seconds)
     user.exists(_.password == encrypter.encrypt(rawPassword))
 
   }
